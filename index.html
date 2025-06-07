@@ -21,15 +21,20 @@
     }
 
     body.light-theme {
-      --bg-color: #f5f5f5;
-      --text-color: #111;
-      --container-bg: rgba(255, 255, 255, 0.9);
-      --message-user-bg: #007aff;
-      --message-bot-bg: #e0e0e0;
-      --input-bg: rgba(240, 240, 240, 0.8);
-      --border-color: #ccc;
-      --indicator-color: #555;
-    }
+  --bg-color: #f5f5f5;
+  --text-color: #111;
+  --container-bg: rgba(255, 255, 255, 0.9);
+  --message-user-bg: #007aff;
+  --message-bot-bg: #e0e0e0;
+  --input-bg: rgba(240, 240, 240, 0.8);
+  --border-color: #ccc;
+  --indicator-color: #555;
+
+  /* 🔧 Fix segmented control for light mode */
+  --segmented-label-color: #555;
+  --segmented-slider-bg: #333;
+}
+
 
     body {
       margin: 0;
@@ -289,59 +294,110 @@
     }
 
     .code-editor-modal {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #1e1e1e;
-      width: 90%;
-      max-width: 700px;
-      height: 60vh;
-      border-radius: 12px;
-      box-shadow: 0 0 18px rgba(0,0,0,0.6);
-      display: none;
-      z-index: 1001;
-      flex-direction: column;
-    }
+  position: fixed;
+  background: #1e1e1e;
+  width: 90%;
+  max-width: 680px;
+  height: 420px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  display: none;
+  z-index: 1001;
+  flex-direction: column;
+  overflow: auto;           /* ✅ Required for resizing to work */
+  resize: both;             /* ✅ Enables dragging to resize */
+  transition: all 0.3s ease;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 
-    .code-editor-modal.visible {
-      display: flex !important;
-    }
+/* ✅ Add this right after */
+.code-editor-modal.dragging {
+  transition: none !important;
+  cursor: move;
+}
 
-    .code-editor-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #2a2a2a;
-      padding: 12px 16px;
-      color: white;
-      font-weight: 600;
-      border-top-left-radius: 12px;
-      border-top-right-radius: 12px;
-    }
 
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 20px;
-      color: white;
-      cursor: pointer;
-    }
 
-    #codeEditorArea {
-      flex: 1;
-      width: 100%;
-      height: 100%;
-      background: #1e1e1e;
-      color: white;
-      border: none;
-      resize: none;
-      padding: 16px;
-      font-family: monospace;
-      font-size: 14px;
-      border-bottom-left-radius: 12px;
-      border-bottom-right-radius: 12px;
-    }
+.code-editor-modal.visible {
+  display: flex !important;
+}
+.code-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #2a2a2a;
+    padding: 12px 20px;
+    color: white;
+    font-weight: 600;
+    border-bottom: 1px solid #444;
+  }
+
+  .editor-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-left: auto;
+  }
+
+  .editor-actions button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0 6px;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+
+  .editor-actions button:hover {
+    transform: scale(1.2);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+
+/* Maximize mode */
+.code-editor-modal.maximized {
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  transform: none !important;
+  border-radius: 0;
+  box-shadow: none;
+  z-index: 1002;
+}
+
+/* Minimize mode */
+.code-editor-modal.minimized {
+  height: 48px !important;
+  width: 280px !important;
+  transform: translate(-50%, -50%) !important;
+  overflow: hidden;
+}
+
+/* Hide textarea when minimized */
+.code-editor-modal.minimized textarea {
+  display: none;
+}
+
+#codeEditorArea {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background: #1e1e1e;
+  color: white;
+  border: none;
+  resize: none;
+  padding: 18px 20px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  outline: none;
+  border-radius: 0; /* Ensures it doesn't break outer modal shape */
+}
+
 
     @media screen and (max-width: 600px) {
       .greeting {
@@ -472,126 +528,171 @@
   <!-- ...code editor and rest unchanged... -->
   <div class="code-editor-modal" id="codeEditorModal">
     <div class="code-editor-header">
-      <span>Code Editor</span>
-      <button class="close-btn" onclick="toggleCodeEditor()">×</button>
-    </div>
+        <span>Code Editor</span>
+        <div class="editor-actions">
+          <button onclick="minimizeEditor()">−</button>
+          <button onclick="maximizeEditor()">☐</button>
+          <button onclick="toggleCodeEditor()">×</button>
+        </div>
+      </div>
+      
+
+
     <textarea id="codeEditorArea" placeholder="Write your Python code here..."></textarea>
   </div>
   
   <script>
-    const messagesDiv = document.getElementById('messages');
-    const typingIndicator = document.getElementById('typingIndicator');
-    const input = document.getElementById('chatInput');
-    const modal = document.getElementById('codeEditorModal');
-    const themeToggle = document.getElementById('theme-toggle');
-    const hamburger = document.querySelector('.hamburger');
-    let chatHistory = {};
+  const messagesDiv = document.getElementById('messages');
+  const typingIndicator = document.getElementById('typingIndicator');
+  const input = document.getElementById('chatInput');
+  const modal = document.getElementById('codeEditorModal');
+  const themeToggle = document.getElementById('theme-toggle');
+  const hamburger = document.querySelector('.hamburger');
+  let chatHistory = {};
 
-    themeToggle.addEventListener('click', () => {
-      document.body.classList.toggle('light-theme');
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('light-theme');
+  });
+
+  hamburger.addEventListener('click', () => {
+    document.getElementById("sidebar").classList.toggle("open");
+  });
+
+  function getSelectedLang() {
+    const selected = document.querySelector('input[name="language"]:checked');
+    return selected ? selected.value : 'Python';
+  }
+
+  document.querySelectorAll('input[name="language"]').forEach(input => {
+    input.addEventListener('change', () => {
+      const lang = getSelectedLang();
+      const editor = document.getElementById("codeEditorArea");
+      if (editor) editor.placeholder = `Write your ${lang} code here...`;
     });
+  });
 
-    hamburger.addEventListener('click', () => {
-      document.getElementById("sidebar").classList.toggle("open");
-    });
-
-    function getSelectedLang() {
-      const selected = document.querySelector('input[name="language"]:checked');
-      return selected ? selected.value : 'Python';
+  function toggleCodeEditor() {
+    if (modal) {
+      modal.classList.toggle("visible");
+      modal.classList.remove("minimized");
+      modal.classList.remove("maximized");
+      const lang = getSelectedLang();
+      document.getElementById("codeEditorArea").placeholder = `Write your ${lang} code here...`;
     }
+  }
 
-    document.querySelectorAll('input[name="language"]').forEach(input => {
-      input.addEventListener('change', () => {
-        const lang = getSelectedLang();
-        const editor = document.getElementById("codeEditorArea");
-        if (editor) editor.placeholder = `Write your ${lang} code here...`;
-      });
-    });
+  function minimizeEditor() {
+    modal.classList.remove("maximized");
+    modal.classList.toggle("minimized");
+  }
 
-    function toggleCodeEditor() {
-      if (modal) {
-        modal.classList.toggle("visible");
-        const lang = getSelectedLang();
-        document.getElementById("codeEditorArea").placeholder = `Write your ${lang} code here...`;
-      }
+  function maximizeEditor() {
+    modal.classList.remove("minimized");
+    modal.classList.toggle("maximized");
+  }
+
+  function sendMessage() {
+    const msg = input.value.trim();
+    if (!msg) return;
+    addMessage(msg, false);
+    input.value = '';
+    typingIndicator.style.display = 'flex';
+    setTimeout(() => {
+      typingIndicator.style.display = 'none';
+      const response = getBotResponse(msg);
+      addMessage(response, true);
+      saveChatToHistory();
+    }, 1000);
+  }
+
+  function addMessage(text, isBot) {
+    const msgElem = document.createElement('div');
+    msgElem.className = 'message ' + (isBot ? 'bot' : 'user');
+    const textElem = document.createElement('div');
+    textElem.className = 'bubble-text';
+    textElem.textContent = text;
+    msgElem.appendChild(textElem);
+    messagesDiv.appendChild(msgElem);
+    messagesDiv.scrollTo({ top: messagesDiv.scrollHeight, behavior: 'smooth' });
+  }
+
+  function getBotResponse(input) {
+    const lower = input.toLowerCase();
+    if (lower.includes("hello")) return "Hello! How can I help?";
+    if (lower.includes("file")) return "You can upload CSV, PDF, or images!";
+    return "This is a placeholder response.";
+  }
+
+  function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const preview = e.target.result.slice(0, 300);
+      addMessage(`📎 Uploaded \"${file.name}\"\n\n${preview}...`, false);
+      saveChatToHistory();
+    };
+    reader.readAsText(file);
+  }
+
+  function handleKeyPress(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
     }
+  }
 
-    function sendMessage() {
-      const msg = input.value.trim();
-      if (!msg) return;
-      addMessage(msg, false);
-      input.value = '';
-      typingIndicator.style.display = 'flex';
-      setTimeout(() => {
-        typingIndicator.style.display = 'none';
-        const response = getBotResponse(msg);
-        addMessage(response, true);
-        saveChatToHistory();
-      }, 1000);
-    }
-
-    function addMessage(text, isBot) {
-      const msgElem = document.createElement('div');
-      msgElem.className = 'message ' + (isBot ? 'bot' : 'user');
-      const textElem = document.createElement('div');
-      textElem.className = 'bubble-text';
-      textElem.textContent = text;
-      msgElem.appendChild(textElem);
-      messagesDiv.appendChild(msgElem);
-      messagesDiv.scrollTo({ top: messagesDiv.scrollHeight, behavior: 'smooth' });
-    }
-
-    function getBotResponse(input) {
-      const lower = input.toLowerCase();
-      if (lower.includes("hello")) return "Hello! How can I help?";
-      if (lower.includes("file")) return "You can upload CSV, PDF, or images!";
-      return "This is a placeholder response.";
-    }
-
-    function handleFileUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const preview = e.target.result.slice(0, 300);
-        addMessage(`📎 Uploaded \"${file.name}\"\n\n${preview}...`, false);
-        saveChatToHistory();
-      };
-      reader.readAsText(file);
-    }
-
-    function handleKeyPress(e) {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
-    }
-
-    function saveChatToHistory() {
-      const id = "chat-" + Date.now();
-      chatHistory[id] = messagesDiv.innerHTML;
-      localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
-      renderChatTabs();
-    }
-
-    function renderChatTabs() {
-      const container = document.getElementById("chatTabs");
-      container.innerHTML = '';
-      const history = JSON.parse(localStorage.getItem("chatHistory")) || {};
-      chatHistory = history;
-      for (const id in history) {
-        const tab = document.createElement("div");
-        tab.className = "chat-tab";
-        tab.textContent = new Date(+id.split('-')[1]).toLocaleString();
-        tab.onclick = () => {
-          messagesDiv.innerHTML = history[id];
-        };
-        container.appendChild(tab);
-      }
-    }
-
+  function saveChatToHistory() {
+    const id = "chat-" + Date.now();
+    chatHistory[id] = messagesDiv.innerHTML;
+    localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
     renderChatTabs();
-  </script>
-</body>
-</html>
+  }
+
+  function renderChatTabs() {
+    const container = document.getElementById("chatTabs");
+    container.innerHTML = '';
+    const history = JSON.parse(localStorage.getItem("chatHistory")) || {};
+    chatHistory = history;
+    for (const id in history) {
+      const tab = document.createElement("div");
+      tab.className = "chat-tab";
+      tab.textContent = new Date(+id.split('-')[1]).toLocaleString();
+      tab.onclick = () => {
+        messagesDiv.innerHTML = history[id];
+      };
+      container.appendChild(tab);
+    }
+  }
+
+  renderChatTabs();
+  // DRAGGABLE MODAL CODE
+const modalHeader = document.querySelector(".code-editor-header");
+let isDragging = false;
+let offsetX = 0, offsetY = 0;
+
+modalHeader.addEventListener("mousedown", (e) => {
+  // Disable dragging in maximized state
+  if (modal.classList.contains("maximized")) return;
+
+  isDragging = true;
+  const rect = modal.getBoundingClientRect();
+  offsetX = e.clientX - rect.left;
+  offsetY = e.clientY - rect.top;
+  modal.classList.add("dragging");
+});
+
+document.addEventListener("mouseup", () => {
+  isDragging = false;
+  modal.classList.remove("dragging");
+});
+
+document.addEventListener("mousemove", (e) => {
+  if (!isDragging) return;
+  modal.style.top = `${e.clientY - offsetY}px`;
+  modal.style.left = `${e.clientX - offsetX}px`;
+  modal.style.transform = `none`; // cancel centering
+});
+</script>
+
 
