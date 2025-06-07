@@ -53,8 +53,20 @@
       position: absolute;
       top: 20px;
       right: 20px;
-      font-size: 24px;
+      background: none;
+      border: none;
+      padding: 4px;
       cursor: pointer;
+      color: var(--text-color);
+      z-index: 1000;
+    }
+
+    .theme-toggle svg {
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+    .theme-toggle:hover svg {
+      transform: rotate(20deg);
     }
 
     .hamburger {
@@ -73,7 +85,7 @@
       width: 240px;
       height: 100%;
       background-color: var(--container-bg);
-      padding: 20px;
+      padding: 30px 20px 20px 20px;
       box-shadow: 2px 0 10px rgba(0,0,0,0.4);
       transition: left 0.3s ease;
       z-index: 999;
@@ -86,15 +98,24 @@
 
     .sidebar h3 {
       color: var(--text-color);
-      margin-bottom: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
     }
 
     .sidebar .chat-tab {
-      padding: 10px;
-      margin: 8px 0;
+      padding: 10px 12px;
+      margin: 6px 0;
       background: var(--input-bg);
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s ease;
+    }
+
+    .sidebar .chat-tab:hover {
+      background: var(--message-user-bg);
+      color: white;
     }
 
     .center-wrapper {
@@ -152,7 +173,6 @@
     .message.bot { background: var(--message-bot-bg); align-self: flex-start; }
     .message.user { background: var(--message-user-bg); align-self: flex-end; }
 
-    .avatar { font-size: 18px; }
     .bubble-text { line-height: 1.4; word-wrap: break-word; padding: 4px 0; }
 
     .input-wrapper {
@@ -271,7 +291,6 @@
       border-bottom-right-radius: 12px;
     }
 
-    /* === MOBILE RESPONSIVENESS === */
     @media screen and (max-width: 600px) {
       .greeting {
         font-size: 1.8rem;
@@ -316,7 +335,7 @@
 
       .sidebar {
         width: 200px;
-        padding: 16px;
+        padding: 20px;
       }
 
       .sidebar h3 {
@@ -336,7 +355,26 @@
   </style>
 </head>
 <body>
-  <div class="theme-toggle">⚡️</div>
+  <button class="theme-toggle" id="theme-toggle" title="Toggle light & dark" aria-label="auto" aria-live="polite">
+    <svg class="sun-and-moon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24">
+      <mask class="moon" id="moon-mask">
+        <rect x="0" y="0" width="100%" height="100%" fill="white" />
+        <circle cx="24" cy="10" r="6" fill="black" />
+      </mask>
+      <circle class="sun" cx="12" cy="12" r="6" mask="url(#moon-mask)" fill="currentColor" />
+      <g class="sun-beams" stroke="currentColor">
+        <line x1="12" y1="1" x2="12" y2="3" />
+        <line x1="12" y1="21" x2="12" y2="23" />
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+        <line x1="1" y1="12" x2="3" y2="12" />
+        <line x1="21" y1="12" x2="23" y2="12" />
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+      </g>
+    </svg>
+  </button>
+
   <div class="hamburger">☰</div>
 
   <div class="sidebar" id="sidebar">
@@ -347,14 +385,11 @@
   <div class="main-wrapper">
     <div class="center-wrapper">
       <h1 class="greeting">Welcome, Yash</h1>
-
       <div class="chat-container">
         <div class="messages" id="messages"></div>
-
         <div class="typing-indicator" id="typingIndicator" style="display: none;">
           <span></span><span></span><span></span>
         </div>
-
         <div class="input-wrapper">
           <input type="text" id="chatInput" placeholder="Ask follow-up..." onkeypress="handleKeyPress(event)" />
           <label for="fileUpload" class="icon-btn"><i class="fa-solid fa-paperclip"></i></label>
@@ -379,11 +414,11 @@
     const typingIndicator = document.getElementById('typingIndicator');
     const input = document.getElementById('chatInput');
     const modal = document.getElementById('codeEditorModal');
-    const themeBtn = document.querySelector('.theme-toggle');
+    const themeToggle = document.getElementById('theme-toggle');
     const hamburger = document.querySelector('.hamburger');
     let chatHistory = {};
 
-    themeBtn.addEventListener('click', () => {
+    themeToggle.addEventListener('click', () => {
       document.body.classList.toggle('light-theme');
     });
 
@@ -410,18 +445,15 @@
     }
 
     function addMessage(text, isBot) {
-  const msgElem = document.createElement('div');
-  msgElem.className = 'message ' + (isBot ? 'bot' : 'user');
-
-  const textElem = document.createElement('div');
-  textElem.className = 'bubble-text';
-  textElem.textContent = text;
-
-  msgElem.appendChild(textElem);
-  messagesDiv.appendChild(msgElem);
-  messagesDiv.scrollTo({ top: messagesDiv.scrollHeight, behavior: 'smooth' });
-}
-
+      const msgElem = document.createElement('div');
+      msgElem.className = 'message ' + (isBot ? 'bot' : 'user');
+      const textElem = document.createElement('div');
+      textElem.className = 'bubble-text';
+      textElem.textContent = text;
+      msgElem.appendChild(textElem);
+      messagesDiv.appendChild(msgElem);
+      messagesDiv.scrollTo({ top: messagesDiv.scrollHeight, behavior: 'smooth' });
+    }
 
     function getBotResponse(input) {
       const lower = input.toLowerCase();
@@ -476,3 +508,4 @@
   </script>
 </body>
 </html>
+
