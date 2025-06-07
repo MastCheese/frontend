@@ -216,7 +216,6 @@
       100% { background-position: 0% 50%; }
     }
 
-    /* --- CODE EDITOR MODAL --- */
     .code-editor-modal {
       position: fixed;
       top: 50%;
@@ -271,6 +270,69 @@
       border-bottom-left-radius: 12px;
       border-bottom-right-radius: 12px;
     }
+
+    /* === MOBILE RESPONSIVENESS === */
+    @media screen and (max-width: 600px) {
+      .greeting {
+        font-size: 1.8rem;
+      }
+
+      .main-wrapper {
+        padding: 10px;
+        align-items: stretch;
+      }
+
+      .center-wrapper {
+        padding: 0 10px;
+      }
+
+      .input-wrapper {
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 8px 14px;
+        max-width: 100%;
+      }
+
+      .input-wrapper input[type="text"] {
+        font-size: 14px;
+        padding: 6px;
+      }
+
+      .icon-btn {
+        font-size: 14px;
+        margin-left: 6px;
+      }
+
+      .messages {
+        max-height: 250px;
+        padding: 0 6px;
+      }
+
+      .message {
+        font-size: 14px;
+        padding: 6px 10px;
+        margin: 6px 0;
+      }
+
+      .sidebar {
+        width: 200px;
+        padding: 16px;
+      }
+
+      .sidebar h3 {
+        font-size: 18px;
+      }
+
+      .code-editor-modal {
+        width: 95%;
+        height: 55vh;
+      }
+
+      .theme-toggle, .hamburger {
+        font-size: 20px;
+        top: 12px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -304,7 +366,6 @@
     </div>
   </div>
 
-  <!-- CODE EDITOR MODAL -->
   <div class="code-editor-modal" id="codeEditorModal">
     <div class="code-editor-header">
       <span>Code Editor</span>
