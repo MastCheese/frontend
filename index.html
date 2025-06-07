@@ -410,19 +410,17 @@
     }
 
     function addMessage(text, isBot) {
-      const msgElem = document.createElement('div');
-      msgElem.className = 'message ' + (isBot ? 'bot' : 'user');
-      const avatar = document.createElement('div');
-      avatar.className = 'avatar';
-      avatar.textContent = isBot ? '🤖' : '🧑';
-      const textElem = document.createElement('div');
-      textElem.className = 'bubble-text';
-      textElem.textContent = text;
-      msgElem.appendChild(avatar);
-      msgElem.appendChild(textElem);
-      messagesDiv.appendChild(msgElem);
-      messagesDiv.scrollTo({ top: messagesDiv.scrollHeight, behavior: 'smooth' });
-    }
+  const msgElem = document.createElement('div');
+  msgElem.className = 'message ' + (isBot ? 'bot' : 'user');
+
+  const textElem = document.createElement('div');
+  textElem.className = 'bubble-text';
+  textElem.textContent = text;
+
+  msgElem.appendChild(textElem);
+  messagesDiv.appendChild(msgElem);
+  messagesDiv.scrollTo({ top: messagesDiv.scrollHeight, behavior: 'smooth' });
+}
 
     function getBotResponse(input) {
       const lower = input.toLowerCase();
