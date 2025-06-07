@@ -140,6 +140,58 @@
       margin-bottom: 14px;
     }
 
+    .segmented-control {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 260px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid white;
+      border-radius: 999px;
+      padding: 6px;
+      margin: 20px auto 14px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .segmented-control input {
+      display: none;
+    }
+
+    .segmented-control label {
+      flex: 1;
+      text-align: center;
+      padding: 8px 0;
+      cursor: pointer;
+      z-index: 2;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+
+    .segmented-control .slider {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: calc(100% / 3 - 8px);
+      height: calc(100% - 8px);
+      background: white;
+      border-radius: 999px;
+      transition: left 0.3s ease;
+      z-index: 1;
+    }
+
+    #lang-python:checked ~ .slider { left: 4px; }
+    #lang-sql:checked ~ .slider { left: calc(33.333% + 4px); }
+    #lang-pyspark:checked ~ .slider { left: calc(66.666% + 4px); }
+
+    #lang-python:checked + label,
+    #lang-sql:checked + label,
+    #lang-pyspark:checked + label {
+      color: black;
+    }
+
     .chat-container {
       display: flex;
       flex-direction: column;
@@ -355,6 +407,7 @@
   </style>
 </head>
 <body>
+  <!-- ...existing buttons, sidebar, etc... -->
   <button class="theme-toggle" id="theme-toggle" title="Toggle light & dark" aria-label="auto" aria-live="polite">
     <svg class="sun-and-moon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24">
       <mask class="moon" id="moon-mask">
@@ -374,9 +427,9 @@
       </g>
     </svg>
   </button>
-
+  
   <div class="hamburger">☰</div>
-
+  
   <div class="sidebar" id="sidebar">
     <h3>Chat History</h3>
     <div id="chatTabs"></div>
@@ -385,6 +438,22 @@
   <div class="main-wrapper">
     <div class="center-wrapper">
       <h1 class="greeting">Welcome, Yash</h1>
+
+      <!-- 🔥 Language Toggle Switch Added -->
+      <div class="segmented-control">
+        <input type="radio" name="language" id="lang-python" value="Python" checked>
+        <label for="lang-python">Python</label>
+
+        <input type="radio" name="language" id="lang-sql" value="SQL">
+        <label for="lang-sql">SQL</label>
+
+        <input type="radio" name="language" id="lang-pyspark" value="PySpark">
+        <label for="lang-pyspark">PySpark</label>
+
+        <div class="slider"></div>
+      </div>
+
+      <!-- chat UI here -->
       <div class="chat-container">
         <div class="messages" id="messages"></div>
         <div class="typing-indicator" id="typingIndicator" style="display: none;">
@@ -398,17 +467,17 @@
           <button class="icon-btn" onclick="sendMessage()"><i class="fa-solid fa-arrow-up"></i></button>
         </div>
       </div>
-    </div>
-  </div>
+      
 
+  <!-- ...code editor and rest unchanged... -->
   <div class="code-editor-modal" id="codeEditorModal">
     <div class="code-editor-header">
       <span>Code Editor</span>
       <button class="close-btn" onclick="toggleCodeEditor()">×</button>
     </div>
-    <textarea id="codeEditorArea" placeholder="Write your code here..."></textarea>
+    <textarea id="codeEditorArea" placeholder="Write your Python code here..."></textarea>
   </div>
-
+  
   <script>
     const messagesDiv = document.getElementById('messages');
     const typingIndicator = document.getElementById('typingIndicator');
@@ -426,8 +495,25 @@
       document.getElementById("sidebar").classList.toggle("open");
     });
 
+    function getSelectedLang() {
+      const selected = document.querySelector('input[name="language"]:checked');
+      return selected ? selected.value : 'Python';
+    }
+
+    document.querySelectorAll('input[name="language"]').forEach(input => {
+      input.addEventListener('change', () => {
+        const lang = getSelectedLang();
+        const editor = document.getElementById("codeEditorArea");
+        if (editor) editor.placeholder = `Write your ${lang} code here...`;
+      });
+    });
+
     function toggleCodeEditor() {
-      if (modal) modal.classList.toggle("visible");
+      if (modal) {
+        modal.classList.toggle("visible");
+        const lang = getSelectedLang();
+        document.getElementById("codeEditorArea").placeholder = `Write your ${lang} code here...`;
+      }
     }
 
     function sendMessage() {
@@ -468,7 +554,7 @@
       const reader = new FileReader();
       reader.onload = function(e) {
         const preview = e.target.result.slice(0, 300);
-        addMessage(`📎 Uploaded "${file.name}"\n\n${preview}...`, false);
+        addMessage(`📎 Uploaded \"${file.name}\"\n\n${preview}...`, false);
         saveChatToHistory();
       };
       reader.readAsText(file);
