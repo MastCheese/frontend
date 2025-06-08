@@ -175,11 +175,12 @@ input:checked + .slider-round::before {
     }
 
     .sidebar h3 {
-      color: var(--text-color);
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 16px;
-    }
+  color: var(--text-color);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 60px 0 16px 0; /* Push it down */
+}
+
 
     .sidebar .chat-tab {
       padding: 10px 12px;
@@ -195,6 +196,29 @@ input:checked + .slider-round::before {
       background: var(--message-user-bg);
       color: white;
     }
+
+    .chat-tab-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--input-bg);
+  border-radius: 8px;
+  margin: 6px 0;
+  padding: 6px 10px;
+}
+
+.chat-delete-btn {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 18px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.chat-delete-btn:hover {
+  color: red;
+}
 
     .center-wrapper {
       display: flex;
@@ -391,8 +415,6 @@ input:checked + .slider-round::before {
   cursor: move;
 }
 
-
-
 .code-editor-modal.visible {
   display: flex !important;
 }
@@ -470,7 +492,6 @@ input:checked + .slider-round::before {
   outline: none;
   border-radius: 0; /* Ensures it doesn't break outer modal shape */
 }
-
 
 @media screen and (max-width: 600px) {
   .greeting {
@@ -785,20 +806,37 @@ input:checked + .slider-round::before {
   }
 
   function renderChatTabs() {
-    const container = document.getElementById("chatTabs");
-    container.innerHTML = '';
-    const history = JSON.parse(localStorage.getItem("chatHistory")) || {};
-    chatHistory = history;
-    for (const id in history) {
-      const tab = document.createElement("div");
-      tab.className = "chat-tab";
-      tab.textContent = new Date(+id.split('-')[1]).toLocaleString();
-      tab.onclick = () => {
-        messagesDiv.innerHTML = history[id];
-      };
-      container.appendChild(tab);
-    }
+  const container = document.getElementById("chatTabs");
+  container.innerHTML = '';
+  const history = JSON.parse(localStorage.getItem("chatHistory")) || {};
+  chatHistory = history;
+
+  for (const id in history) {
+    const tabWrapper = document.createElement("div");
+    tabWrapper.className = "chat-tab-wrapper";
+
+    const tab = document.createElement("div");
+    tab.className = "chat-tab";
+    tab.textContent = new Date(+id.split('-')[1]).toLocaleString();
+    tab.onclick = () => {
+      messagesDiv.innerHTML = history[id];
+    };
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "chat-delete-btn";
+    deleteBtn.innerHTML = "⋮";
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation(); // prevent tab click
+      delete history[id];
+      localStorage.setItem("chatHistory", JSON.stringify(history));
+      renderChatTabs();
+    };
+
+    tabWrapper.appendChild(tab);
+    tabWrapper.appendChild(deleteBtn);
+    container.appendChild(tabWrapper);
   }
+}
 
   renderChatTabs();
   // DRAGGABLE MODAL CODE
@@ -829,5 +867,6 @@ document.addEventListener("mousemove", (e) => {
   modal.style.transform = `none`; // cancel centering
 });
 </script>
+
 
 
