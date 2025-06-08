@@ -487,11 +487,11 @@ input:checked + .slider-round::before {
   }
 
   .input-wrapper {
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 8px 14px;
-    max-width: 100%;
-  }
+  padding: 10px 16px;
+  margin: 0 12px;              /* ✅ adds spacing from phone screen edges */
+  box-sizing: border-box;
+  max-width: calc(100% - 24px); /* ✅ ensures input stays within bounds */
+}
 
   .input-wrapper input[type="text"] {
     font-size: 14px;
