@@ -534,9 +534,12 @@ input:checked + .slider-round::before {
   }
   /* ✅ Mobile-friendly switch buttons */
   .switch {
-    width: 160px;
-    gap: 14px;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  width: 170px;
+}
 
   .slider-round {
     width: 50px;
@@ -551,19 +554,23 @@ input:checked + .slider-round::before {
   }
 
   .switch-icon {
-    height: 24px;
-    width: 24px;
-  }
+  height: 26px;
+  width: 26px;
+  object-fit: contain;
+}
 
-  .mysql-icon {
-    height: 28px;
-  }
+.mysql-icon {
+  height: 30px;
+}
 
-  .toggle-switches {
-    top: 60px;
-    right: 16px;
-    gap: 20px;
-  }
+.toggle-switches {
+  top: 60px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
 }
 
   </style>
