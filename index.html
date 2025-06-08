@@ -487,20 +487,27 @@ input:checked + .slider-round::before {
   }
 
   .input-wrapper {
-  padding: 10px 16px;
-  margin: 0 12px;              /* ✅ adds spacing from phone screen edges */
-  box-sizing: border-box;
-  max-width: calc(100% - 24px); /* ✅ ensures input stays within bounds */
-}
+    padding: 10px 16px;
+    margin: 0 12px;
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow: hidden;               /* ✅ Prevents overflow */
+  }
 
   .input-wrapper input[type="text"] {
     font-size: 14px;
     padding: 6px;
+    min-width: 0;                  /* ✅ Prevents input from stretching */
   }
 
   .icon-btn {
     font-size: 14px;
     margin-left: 6px;
+    padding: 6px 4px;              /* ✅ Controlled spacing for icons */
+  }
+
+  .icon-btn i {
+    font-size: 16px;
   }
 
   .messages {
@@ -532,14 +539,15 @@ input:checked + .slider-round::before {
     font-size: 20px;
     top: 12px;
   }
-  /* ✅ Mobile-friendly switch buttons */
+
+  /* ✅ Mobile-friendly toggle switches */
   .switch {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 12px;
-  width: 170px;
-}
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    width: 170px;
+  }
 
   .slider-round {
     width: 50px;
@@ -554,30 +562,22 @@ input:checked + .slider-round::before {
   }
 
   .switch-icon {
-  height: 26px;
-  width: 26px;
-  object-fit: contain;
-}
+    height: 26px;
+    width: 26px;
+    object-fit: contain;
+  }
 
-.mysql-icon {
-  height: 30px;
-}
+  .mysql-icon {
+    height: 30px;
+  }
 
-.toggle-switches {
-  top: 60px;
-  right: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-.icon-btn {
-  font-size: 14px;
-  margin-left: 6px;
-  padding-right: 6px; /* ✅ This is the key addition */
-}
-
-.icon-btn i {
-  font-size: 16px;
+  .toggle-switches {
+    top: 60px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
 }
 
   </style>
